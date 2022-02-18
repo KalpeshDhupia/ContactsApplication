@@ -4,10 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/drawable-v24/ic_baseline_account_circle_24.xml" value="0.18697916666666667" />
-        <entry key="app/src/main/res/layout/activity_contact_detail.xml" value="0.17083333333333334" />
+        <entry key="app/src/main/res/layout/activity_contact_detail.xml" value="0.6191819464033851" />
         <entry key="app/src/main/res/layout/activity_create_new_contact.xml" value="0.17083333333333334" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.31927083333333334" />
-        <entry key="app/src/main/res/layout/contacts_rv_item.xml" value="0.31927083333333334" />
+        <entry key="app/src/main/res/layout/contacts_rv_item.xml" value="0.33" />
         <entry key="app/src/main/res/menu/search_menu.xml" value="0.31927083333333334" />
       </map>
     </option>

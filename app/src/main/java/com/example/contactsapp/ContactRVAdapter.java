@@ -35,7 +35,7 @@ class ContactRVAdapter extends RecyclerView.Adapter<ContactRVAdapter.ViewHolder>
 
     }
 
-    //below mwthod is use for filtering data in our array list.
+    //below method is use for filtering data in our array list.
     public void filterList(ArrayList<ContactsModal> filterllist) {
         //on below line we are passing filtered array list in our original array list
         contactsModalArrayList = filterllist;
@@ -48,6 +48,9 @@ class ContactRVAdapter extends RecyclerView.Adapter<ContactRVAdapter.ViewHolder>
         ContactsModal modal = contactsModalArrayList.get(position);
         //on below line we are setting data to our text view.
         holder.contactTV.setText(modal.getUserName());
+
+
+
         ColorGenerator colorGenerator = ColorGenerator.MATERIAL;
         int color = colorGenerator.getRandomColor();
 
@@ -69,6 +72,7 @@ class ContactRVAdapter extends RecyclerView.Adapter<ContactRVAdapter.ViewHolder>
                 Intent i = new Intent(context, ContactDetailActivity.class);
                 i.putExtra("name", modal.getUserName());
                 i.putExtra("contact", modal.getContactNumber());
+                //i.putExtra("numbers", modal.getNumbers());
                 //on below line we are starting a new activity,
                 context.startActivity(i);
             }
@@ -84,12 +88,14 @@ class ContactRVAdapter extends RecyclerView.Adapter<ContactRVAdapter.ViewHolder>
         //on below line creating a variable for our image view and text view.
         private ImageView contactIV;
         private TextView contactTV;
+        private TextView phoneTV;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             //initializing our image view and text view.
             contactIV = itemView.findViewById(R.id.idIVContact);
             contactTV = itemView.findViewById(R.id.idTVContactName);
+            phoneTV = itemView.findViewById(R.id.numbers_textview);
         }
     }
 }

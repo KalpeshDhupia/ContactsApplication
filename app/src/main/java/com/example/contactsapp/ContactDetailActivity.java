@@ -12,9 +12,12 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
 public class ContactDetailActivity extends AppCompatActivity {
     private String contactName, contactNumber;
-    private TextView contactTV, nameTV;
+    private ArrayList<String> numbers;
+    private TextView contactTV, nameTV, listtv;
     private ImageView contactIV, callIV, messageIV;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,13 +25,19 @@ public class ContactDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_contact_detail);
         contactName = getIntent().getStringExtra("name");
         contactNumber = getIntent().getStringExtra("contact");
+        numbers = getIntent().getStringArrayListExtra("numbers");
 
         // initializing our views.
         nameTV = findViewById(R.id.idTVName);
         contactIV = findViewById(R.id.idIVContact);
         contactTV = findViewById(R.id.idTVPhone);
+        listtv = findViewById(R.id.list_tv);
         nameTV.setText(contactName);
         contactTV.setText(contactNumber);
+
+        for(int i =0  ; i < numbers.size(); i++ ){
+            listtv.append(numbers.get(i)+"\n");
+        }
         callIV = findViewById(R.id.idIVCall);
         messageIV = findViewById(R.id.idIVMessage);
         callIV.setOnClickListener(new View.OnClickListener() {
@@ -38,6 +47,7 @@ public class ContactDetailActivity extends AppCompatActivity {
                 makeCall(contactNumber);
             }
         });
+
 
         // on below line adding on click listener for our message image view.
         messageIV.setOnClickListener(new View.OnClickListener() {
@@ -52,7 +62,7 @@ public class ContactDetailActivity extends AppCompatActivity {
         // in this method we are calling an intent to send sms.
         // on below line we are passing our contact number.
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + contactNumber));
-        intent.putExtra("sms_body", "Enter your messaage");
+        intent.putExtra("sms_body", "Enter your message");
         startActivity(intent);
     }
     private void makeCall(String contactNumber) {

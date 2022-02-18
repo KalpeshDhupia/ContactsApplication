@@ -1,10 +1,5 @@
 package com.example.contactsapp;
 
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.view.MenuItemCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -15,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -22,6 +18,11 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.SearchView;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.MenuItemCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.karumi.dexter.Dexter;
@@ -36,11 +37,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
     private ArrayList<ContactsModal> contactsModalArrayList;
     private Map<String, ArrayList<ContactsModal>> multiValueMap;
     private RecyclerView contactRV;
+    HashMap<String, HashMap<String, ArrayList<ContactsModal>>> map = new HashMap<String, HashMap<String, ArrayList<ContactsModal>>>();
     private ContactRVAdapter contactRVAdapter;
     private ProgressBar loadingPB;
 
@@ -49,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         contactsModalArrayList = new ArrayList<>();
+        map = new HashMap<String, HashMap<String, ArrayList<ContactsModal>>>();
         multiValueMap = new HashMap<String, ArrayList<ContactsModal>>();
         contactRV = findViewById(R.id.idRVContacts);
         FloatingActionButton addNewContactFAB = findViewById(R.id.idFABadd);
@@ -167,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                 // on same thread and to check the permissions
                 .onSameThread().check();
     }
+
     private void showSettingsDialog() {
         // we are displaying an alert dialog for permissions
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
@@ -212,7 +217,9 @@ public class MainActivity extends AppCompatActivity {
         //on below line we are creating a string variables for our contact id and display name.
         String contactId = "";
         String displayName = "";
-        String selection  = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = '1'";
+        String phoneNumber = "";
+        ArrayList<String> phoneNumberss;
+        String selection = ContactsContract.Contacts.HAS_PHONE_NUMBER + " = '1'";
         //on below line we are calling our content resolver for getting contacts
         Cursor cursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, selection, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
         //on blow line we are checking the count for our cursor.
@@ -226,6 +233,14 @@ public class MainActivity extends AppCompatActivity {
                     //on below line we are getting our contact id and user name for that contact
                     contactId = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
                     displayName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+                    phoneNumberss = new ArrayList();
+                    //  phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+
+
+                    // phoneNumberss.add(phoneNumber);
+                    // contactsModalArrayList.add(new ContactsModal(displayName, phoneNumber));
+
                     //on below line we are calling a content resolver and making a query
                     Cursor phoneCursor = getContentResolver().query(
                             ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
@@ -234,14 +249,42 @@ public class MainActivity extends AppCompatActivity {
                             new String[]{contactId},
                             null);
                     //on below line we are moving our cursor to next position.
-                    if (phoneCursor.moveToNext()) {
+
+                    String phonetemp = "";
+                    String nameTemp = "";
+                    while (phoneCursor.moveToNext()) {
                         //on below line we are getting the phone number for our users and then adding the name along with phone number in array list.
-                        String phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        contactsModalArrayList.add(new ContactsModal(displayName, phoneNumber));
-                        multiValueMap.put(displayName,contactsModalArrayList);
+                        String phoneNumber2 = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        String displayName2 = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        int type = phoneCursor.getInt(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.TYPE));
+                        phoneNumber2 = phoneNumber2.replace("-", "");
+                        if (!phoneNumber2.equals(phonetemp)) {
+                            phoneNumberss.add(phoneNumber2);
+                            phonetemp = phoneNumber2;
+                        }
+
+
                     }
-                    //on below line we are closing our phone cursor.
+
+                    // multiValueMap.put(displayName,contactsModalArrayList);
                     phoneCursor.close();
+
+
+
+                    contactsModalArrayList.add(new ContactsModal(displayName, phonetemp));
+                    map.put(contactId, new HashMap<String, ArrayList<ContactsModal>>());
+                    Objects.requireNonNull(map.get(contactId)).put(displayName, contactsModalArrayList);
+                    ArrayList<ContactsModal> valueFromMap = null;
+                    if(map.containsKey(contactId)){
+                        valueFromMap = map.get(contactId).get(displayName);
+                    }
+                 //   Log.d("contact", Objects.requireNonNull(Objects.requireNonNull(map.get("contactId")).get("displayName")).toString());
+                    assert valueFromMap != null;
+                    Log.d("contacts-",valueFromMap.get(0).getContactNumber());
+                    Log.d("contacts-",valueFromMap.get(0).getUserName());
+                    //on below line we are closing our phone cursor.
+
+
                 }
             }
         }
@@ -249,7 +292,7 @@ public class MainActivity extends AppCompatActivity {
         cursor.close();
         //on below line we are hiding our progress bar and notifying our adapter class.
         loadingPB.setVisibility(View.GONE);
-        contactRVAdapter.notifyDataSetChanged();
+        // contactRVAdapter.notifyDataSetChanged();
     }
 
     private void prepareContactRV() {
